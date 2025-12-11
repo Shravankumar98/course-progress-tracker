@@ -1,0 +1,37 @@
+.circular-progress {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* background circle */
+.circular-progress .bg {
+  fill: transparent;               /* inner area transparent */
+  stroke: #eee;                    /* light background ring */
+  stroke-width: var(--stroke);
+}
+
+/* progress circle */
+.circular-progress .progress {
+  fill: transparent;
+  stroke: var(--color);            /* dynamic border color */
+  stroke-width: var(--stroke);     /* dynamic border thickness */
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+
+  /* animation using CSS variables */
+  stroke-dasharray: var(--circumference);
+  stroke-dashoffset: var(--offset);
+  transition: stroke-dashoffset 0.4s ease;
+}
+
+/* label inside */
+.circular-progress .label {
+  position: absolute;
+  font-size: 20px;
+  font-weight: bold;
+  color: #777;
+  pointer-events: none;
+}
