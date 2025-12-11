@@ -1,14 +1,27 @@
 import { courses, completedLessons } from "../db.js";
 
 const getCourses = (_req, res) => {
-  res.json(courses);
+  const coursesWithProgress = courses.map((course) => {
+    const completedLessonsCount = course.lessons.reduce(
+      (count, lesson) =>
+        completedLessons.includes(lesson.id) ? count + 1 : count,
+      0
+    );
+    const progress = (completedLessonsCount / course.lessons.length) * 100;
+    return { ...course, progress };
+  });
+  res.json(coursesWithProgress);
 };
 
 const getCourseById = (req, res) => {
   const courseId = parseInt(req.params.id);
   const course = courses.find((c) => c.courseId === courseId);
   if (course) {
-    res.json(course);
+    const courseWithCompletedLessons = course.lessons.map((lesson) => ({
+      ...lesson,
+      completed: completedLessons.includes(lesson.id),
+    }));
+    res.json({ ...course, lessons: courseWithCompletedLessons });
   } else {
     res.status(404).json({ message: "Course not found" });
   }
@@ -19,7 +32,8 @@ const getCourseProgressById = (req, res) => {
   const course = courses.find((c) => c.courseId === courseId);
   if (course) {
     const completedLessonsCount = course.lessons.reduce(
-      (count, lesson) => completedLessons.includes(lesson.id) && count + 1,
+      (count, lesson) =>
+        completedLessons.includes(lesson.id) ? count + 1 : count,
       0
     );
     const progress = (completedLessonsCount / course.lessons.length) * 100;
