@@ -1,4 +1,3 @@
-import React from "react";
 import "./CircularProgress.css";
 
 const CircularProgress = ({ size = 120, progress = 65, stroke = 10, color = "#4caf50" }) => {

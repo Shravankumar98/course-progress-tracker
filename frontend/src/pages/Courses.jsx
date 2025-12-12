@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import {  getCourses } from "../api";
-import Card from "../components/Card";
+import { useEffect, useState } from "react";
+import { getCourses } from "../api";
+import Card from "../components/Card/Card";
 import "./styles.css";
 
 const Courses = () => {
@@ -15,8 +15,6 @@ const Courses = () => {
           console.log("No Courses found");
           return;
         }
-        console.log(result);
-
         setCoursesList(result);
       } catch (error) {
         console.error("Error:", error.message);

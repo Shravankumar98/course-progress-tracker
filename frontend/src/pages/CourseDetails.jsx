@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getCourse, getCourseProgress, updateLessonStatus } from "../api";
-import CircularProgress from "../components/CircularProgress";
+import CircularProgress from "../components/CircularProgress/CircularProgress";
 
 const CourseDetails = () => {
   const { id } = useParams();
@@ -10,54 +10,53 @@ const CourseDetails = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      setLoading(true);
-      const fetchCourse = async () => {
-        try {
-          const result = await getCourse(id);
+    if (!id) return;
 
-          if (!result) {
-            console.log("No course found");
-            setCourse(null);
-          } else {
-            setCourse(result);
-          }
-        } catch (error) {
-          console.error("Error:", error.message);
-        } finally {
-          setLoading(false);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        // Run both API calls in parallel
+        const [courseData, progressData] = await Promise.all([
+          getCourse(id),
+          getCourseProgress(id),
+        ]);
+
+        // Handle course
+        if (!courseData) {
+          setCourse(null);
+        } else {
+          setCourse(courseData);
         }
-      };
-      const fetchCourseProgress = async () => {
-        try {
-          const result = await getCourseProgress(id);
 
-          if (!result) {
-            console.log("No progress found");
-            setProgress(null);
-          } else {
-            setProgress(result.progress);
-          }
-        } catch (error) {
-          console.error("Error:", error.message);
-        } finally {
-          setLoading(false);
-        }
-      };
+        // Handle progress
+        setProgress(progressData?.progress ?? 0);
+      } catch (error) {
+        console.error("Error:", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      fetchCourse();
-      fetchCourseProgress();
-    }
+    fetchData();
   }, [id]);
 
-  const handleClick = async (id) => {
+  const handleClick = async (lessonId) => {
     try {
       setLoading(true);
-      updateLessonStatus(id);
-      const updateLessons = course.lessons.map((lesson) =>
-        lesson.id === id ? { ...lesson, completed: true } : lesson
-      );
-      setCourse((prev) => ({ ...prev, lessons: updateLessons }));
+      await updateLessonStatus(lessonId);
+
+      setCourse((prev) => ({
+        ...prev,
+        lessons: prev.lessons.map((lesson) =>
+          lesson.id === lessonId
+            ? { ...lesson, completed: true }
+            : lesson
+        ),
+      }));
+
+      const progressData = await getCourseProgress(id);
+      setProgress(progressData.progress);
     } catch (error) {
       console.error("Error: ", error.message);
     } finally {
@@ -84,6 +83,7 @@ const CourseDetails = () => {
         {course.lessons.map((lesson) => (
           <div key={lesson.id} className="lesson">
             <h2>{lesson.title}</h2>
+
             <button
               onClick={() => handleClick(lesson.id)}
               disabled={lesson.completed}

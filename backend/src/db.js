@@ -8,8 +8,17 @@ const courses = [
       { id: 103, title: "State" },
     ],
   },
+  {
+    courseId: 2,
+    title: "Node",
+    lessons: [
+      { id: 201, title: "Intro" },
+      { id: 202, title: "Express" },
+      { id: 203, title: "REST Apis" },
+    ],
+  },
 ];
 
-const completedLessons = [101, 103];
+const completedLessons = [101, 103, 203];
 
 export { courses, completedLessons };
